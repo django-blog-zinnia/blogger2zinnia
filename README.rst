@@ -15,7 +15,7 @@ Installation
 * Register the ``'zinnia_blogger'`` in your ``INSTALLED_APPS``.
 
 Importing from Blogger
-========================
+======================
 
 Simply run this command to start the importation of your blog. ::
 
