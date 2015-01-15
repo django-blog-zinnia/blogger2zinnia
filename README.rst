@@ -23,4 +23,4 @@ Simply run this command to start the importation of your blog. ::
 
 For the options execute this. ::
 
-  $ python manage.py help wp2zinnia
+  $ python manage.py help blogger2zinnia
