@@ -94,6 +94,22 @@ class Command(NoArgsCommand):
         self.write_out(self.style.TITLE(
             'Starting migration from Blogger to Zinnia %s\n' % __version__))
 
+        default_author = options.get('author')
+        if default_author:
+            try:
+                self.default_author = Author.objects.get(
+                    **{Author.USERNAME_FIELD: self.default_author})
+            except Author.DoesNotExist:
+                raise CommandError(
+                    'Invalid Zinnia username for default author "%s"' %
+                    default_author)
+        else:
+            try:
+                self.default_author = Author.objects.all()[0]
+            except IndexError:
+                raise CommandError('No author present in database, '
+                                   'please create one before going further')
+
         if not self.blogger_username:
             self.blogger_username = input('Blogger username: ')
             if not self.blogger_username:
@@ -105,18 +121,6 @@ class Command(NoArgsCommand):
                                                   self.blogger_password)
         except gdata_service.BadAuthentication:
             raise CommandError('Incorrect Blogger username or password')
-
-        default_author = options.get('author')
-        if default_author:
-            try:
-                self.default_author = Author.objects.get(
-                    **{Author.USERNAME_FIELD: self.default_author})
-            except Author.DoesNotExist:
-                raise CommandError(
-                    'Invalid Zinnia username for default author "%s"' %
-                    default_author)
-        else:
-            self.default_author = Author.objects.all()[0]
 
         if not self.blogger_blog_id:
             self.select_blog_id()
@@ -155,9 +159,6 @@ class Command(NoArgsCommand):
             title=self.category_title,
             slug=slugify(self.category_title)[:255])
 
-        if created:
-            category.save()
-
         return category
 
     def import_posts(self):
@@ -171,7 +172,7 @@ class Command(NoArgsCommand):
             content = post.content.text or ''
             excerpt = self.auto_excerpt and Truncator(
                 strip_tags(smart_unicode(content))).words(50) or ''
-            slug = slugify(post.title.text or get_post_id(post))[:255]
+            slug = (slugify(post.title.text) or get_post_id(post))[:255]
             try:
                 entry = Entry.objects.get(creation_date=creation_date,
                                           slug=slug)
