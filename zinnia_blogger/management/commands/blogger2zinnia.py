@@ -155,9 +155,6 @@ class Command(NoArgsCommand):
             title=self.category_title,
             slug=slugify(self.category_title)[:255])
 
-        if created:
-            category.save()
-
         return category
 
     def import_posts(self):
