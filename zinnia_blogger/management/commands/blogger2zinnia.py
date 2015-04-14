@@ -172,7 +172,7 @@ class Command(NoArgsCommand):
             content = post.content.text or ''
             excerpt = self.auto_excerpt and Truncator(
                 strip_tags(smart_unicode(content))).words(50) or ''
-            slug = slugify(post.title.text or get_post_id(post))[:255]
+            slug = (slugify(post.title.text) or get_post_id(post))[:255]
             try:
                 entry = Entry.objects.get(creation_date=creation_date,
                                           slug=slug)
